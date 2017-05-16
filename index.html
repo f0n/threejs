@@ -1,0 +1,102 @@
+<html>
+<head><title>ISS 3D Model</title>
+<style>
+	body {overflow: hidden;}
+</style></head>
+<body>
+<div><h3>Eduardo Fonseca</h3>
+<p>... a work in progress</p>
+<p>Use mouse to control orbit around object</p></div>
+<script src="three.min.js"></script>
+<script src="TrackballControls.js"></script>
+<script src="THREEx.KeyboardState.js"></script>
+<script type="text/javascript" src="ColladaLoader.js"></script>
+<script>
+var teclado = new THREEx.KeyboardState();
+// iniciando renderizado
+iniciar();
+// animando la renderización
+animar();
+// tiempo para el movimiento (se agarra del sistema)
+// función de inicio		
+function iniciar(){
+	// escenario
+	escenario = new THREE.Scene();
+	// configuración de la camara
+	//tamaño
+	var SCREEN_WIDTH = window.innerWidth; 
+	var SCREEN_HEIGHT = window.innerHeight;
+	var VIEW_ANGLE = 45;
+	var ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT;
+	var NEAR = 0.1;
+	var FAR = 10000;
+	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+	escenario.add(camera);
+	camera.position.set(100,100,200);
+	// Renderer
+	renderer = new THREE.WebGLRenderer( {antialias:true} );
+	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+	document.body.appendChild( renderer.domElement );
+	// controles del ratón que se agregan a la camara
+	controles = new THREE.TrackballControls( camera );
+	// textura territorio(ó plano)
+	crear_territorio();
+	
+	
+	
+	//cargar modelo dae de google sketchup
+	var JsonModeloDDAE = new THREE.ColladaLoader();
+	JsonModeloDDAE.load( "ISS_low.dae", AgregarModeloDAE );	
+	
+	
+	//agregar un poco de luz
+	Luz();
+	
+	
+}
+function Luz(){
+	var luz = new THREE.PointLight(0xdddddd);
+	luz.position.set(-100,200,100);
+	escenario.add(luz);
+	//luz de ambiente
+	var Luzambiente = new THREE.AmbientLight(0xffffff);
+	escenario.add(Luzambiente);
+	// más luz
+	var sunlight = new THREE.DirectionalLight();
+    sunlight.position.set(500, 500, -500);
+    sunlight.intensity = 0.5;
+    sunlight.castShadow = true;
+    sunlight.shadowCameraVisible = true;
+    sunlight.shadowCameraNear = 250;
+    sunlight.shadowCameraFar = 20000;
+    sunlight.shadowCameraLeft = -200;
+    sunlight.shadowCameraRight = 200;
+    sunlight.shadowCameraTop = 200;
+    sunlight.shadowCameraBottom = -200;
+	escenario.add(sunlight);
+
+}
+
+function AgregarModeloDAE(infodae) {
+	modelodae=infodae.scene;
+	modelodae.position.set(0,0,0);
+	modelodae.scale.x = modelodae.scale.y = modelodae.scale.z = 3;
+	modelodae.rotation.x=-Math.PI/2;
+	modelodae.rotation.y=0.01;
+	modelodae.rotation.z=0;
+	escenario.add(modelodae);
+	
+}
+function crear_territorio(){
+
+}
+function animar() {
+	controles.update();
+	requestAnimationFrame( animar );
+	renderer.setClearColor(0xdddddd);
+	renderer.render(escenario,camera);	
+}
+</script>
+
+</body>
+</html>
